@@ -22,6 +22,8 @@ import javafx.stage.WindowEvent;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -88,8 +90,8 @@ public class HelloController extends User {
     public Label checkEmaiLabel;
 
     public static String username, password, gender;
-    public static ArrayList<User> loggedInUser = new ArrayList<>();
-    public static ArrayList<User> users = new ArrayList<>();
+    public static List<User> loggedInUser = new ArrayList<>();
+    public static List<User> users = new ArrayList<>();
 
     File newuserFile = new File("User.txt");
 
@@ -99,8 +101,7 @@ public class HelloController extends User {
 
     public void registration() throws IOException {
         User user = new User();
-        User user2 = new User();
-        User user3 = new User();
+
         if ((!registerNameField.getText().equalsIgnoreCase(""))
                 && (!registerPasswordField.getText().equalsIgnoreCase(""))
                 && (!registerEmailField.getText().equalsIgnoreCase(""))
@@ -109,14 +110,13 @@ public class HelloController extends User {
                 && (maleButton.isSelected() || femaleButton.isSelected())) {
             if (checkUser(registerNameField.getText())) {
                 if (checkEmailLabel(registerEmailField.getText())) {
-
-                    user2.nameString = registerNameField.getText();
-                    user3.passwordString = registerPasswordField.getText();
+                    user.nameString = registerNameField.getText();
+                    user.passwordString = registerPasswordField.getText();
                     user.emailString = registerEmailField.getText();
                     user.fullNameString = registerFirstNameField.getText();
                     user.phoneNumberString = registerPhoneNumberField.getText();
                     if (maleButton.isSelected()) {
-                        user.genderString = "Male";
+                        user.genderString = "MALE";
                     } else {
                         user.genderString = "FEMALE";
                     }
@@ -146,23 +146,20 @@ public class HelloController extends User {
             setOpacity(succesLabel, goBack, nameExistsLabel, checkEmaiLabel);
         }
         if (newuserFile.exists()) {
-            try (FileOutputStream fileOutputStream = new FileOutputStream("User.txt")) {
-
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-
-
-                // objectOutputStream.writeObject(user.emailString);
-                // objectOutputStream.writeObject(user.phoneNumberString);
-                objectOutputStream.writeObject(user2.nameString);
-                objectOutputStream.writeObject(user3.passwordString);
-                // objectOutputStream.writeObject(user.fullNameString);
-                objectOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            try {
+                FileWriter fileWriter = new FileWriter("User.txt", true);
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                PrintWriter printWriter = new PrintWriter(bufferedWriter);
+//                printWriter.println("");
+                printWriter.write(user.nameString + "\\s");
+                printWriter.write(user.passwordString + "\\s");
+                printWriter.write(user.genderString + "\n");
+                printWriter.close();
+                bufferedWriter.close();
+                fileWriter.close();
+            } catch (Exception exception) {
+                exception.printStackTrace();
             }
-
-        } else {
-            newuserFile.createNewFile();
         }
 
     }
@@ -213,63 +210,75 @@ public class HelloController extends User {
     }
 
 
-    public void login() throws IOException {
+    public void login() {
 
+        // Read user data from db
+        User temp = new User();
 
         if (newuserFile.exists()) {
+            String[] userInfo;
+            StringBuilder content = getContent();
+//            System.out.println("Dosya içeriği: " + content);
 
+            String[] usersFromFile = content.toString().split("\n");//"ali pass MALE","veli pass MALE","...."
+            for (String s : usersFromFile) {
+                userInfo = s.split("\\s");//"ali","pass","MALE"
+                temp.nameString = userInfo[0];
+                temp.passwordString = userInfo[1];
+                temp.genderString = userInfo[2];
+                users.add(temp);
+            }
 
-            try (FileInputStream fileInputStream = new FileInputStream("User.txt")) {
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                while (true) {
-                    try {
+            System.out.println(users);
 
-
-                        try {
-                            user1 = (User) objectInputStream.readObject();
-                            System.out.println(user1.nameString);
-                            // System.out.println(user.emailString);
-                            System.out.println(user1.passwordString);
-                            //   System.out.println(user.phoneNumberString);
-                            //  System.out.println(user.fullNameString);
-                            objectInputStream.close();
-                        } catch (EOFException | ClassNotFoundException exception) {
-                            exception.printStackTrace();
-                            break;
-                        }
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
-
-                    }
+            username = usernameField.getText();
+            password = passwordField.getText();
+//            int loginCounter = 0;
+            for (User xUser : users)
+                if (xUser.nameString.equalsIgnoreCase(username) && xUser.passwordString.equalsIgnoreCase(password)) {
+                    loggedInUser.add(xUser);
+                    System.out.println("loggedInUser: " + xUser.nameString);
+                    gender = xUser.genderString;
+                    break;
                 }
 
+//            users.stream().(i -> i.nameString.equalsIgnoreCase(username)
+//                            && i.passwordString.equalsIgnoreCase(password))
+//                    .forEach(i-> {
+//                        loggedInUser.add(i);
+//                        gender=i.genderString;
+//                    });
 
-                username = usernameField.getText();
-                password = passwordField.getText();
-                boolean login = false;
-                for (User xUser : users) {
 
-
-                    if (xUser.nameString.equalsIgnoreCase(username) && xUser.passwordString.equalsIgnoreCase(password)) {
-
-                        login = true;
-                        loggedInUser.add(xUser);
-                        System.out.println(xUser.nameString);
-                        gender = xUser.genderString;
-                        break;
-                    }
-
-                }
-
-                if (login) {
-                    changeWindow();
-                } else {
-                    loginNotifierLabel.setOpacity(1);
-                }
+            if (loggedInUser.size() != 2) {
+                changeWindow();
+            } else {
+                loginNotifierLabel.setOpacity(1);
             }
 
 
         }
+    }
+
+    private static StringBuilder getContent() {
+        StringBuilder content = new StringBuilder();
+
+        try {
+            FileInputStream fileInputStream = new FileInputStream("C:/Users/betul/Desktop/JavaFx/SocketProggramming/User.txt");
+
+            int i = 0;
+
+            while ((i = fileInputStream.read()) != -1) {
+                content.append((char) i);
+            }
+
+            fileInputStream.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("getContent(): "+content+"\n");
+        return content;
     }
 
     public void changeWindow() {

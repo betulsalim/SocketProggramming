@@ -16,7 +16,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        Room room = new Room();
-        return nameString + " " + passwordString + " ";
+//        Room room = new Room();
+        return nameString + " " + passwordString+" ";
     }
 }

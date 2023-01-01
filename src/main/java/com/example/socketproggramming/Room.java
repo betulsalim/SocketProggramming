@@ -242,29 +242,24 @@ public class Room extends Thread implements Initializable, Serializable {
     }
 
     @Override
-
     public void initialize(URL location, ResourceBundle resourceBundle) {
-
-
         showProfilePictureCircle.setStroke(Color.valueOf("#3344"));
         Image image;
-        if (HelloController.gender.equalsIgnoreCase("Male")) {
-            image = new Image("C:\\Users\\betul\\Desktop\\JavaFx\\SocketProggramming\\src\\İmage\\man2.png", false);
 
-
+        if (HelloController.gender.equalsIgnoreCase("MALE")) {
+            image = new Image("C:\\Users\\betul\\Desktop\\JavaFx\\SocketProggramming\\src\\İmage\\man2.png");
         } else {
-            image = new Image("C:\\Users\\betul\\Desktop\\JavaFx\\SocketProggramming\\src\\İmage\\female.png", false);
+            image = new Image("C:\\Users\\betul\\Desktop\\JavaFx\\SocketProggramming\\src\\İmage\\female.png");
             profileImageView.setImage(image);
         }
         showProfilePictureCircle.setFill(new ImagePattern(image));
         if (newUserFile.exists()) {
 
             try {
-                FileWriter fileWriter = new FileWriter("User.txt");
+                FileWriter fileWriter = new FileWriter("loggedInUserFile.txt");
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                 bufferedWriter.append((CharSequence) showProfilePictureCircle.getFill());
                 bufferedWriter.close();
-
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
@@ -272,7 +267,6 @@ public class Room extends Thread implements Initializable, Serializable {
 
             clientNameLabel.setText(HelloController.username);
             connectSocket();
-
         }
     }
 
