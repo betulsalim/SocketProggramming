@@ -17,20 +17,26 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import java.io.BufferedReader.*;
+
 
 
 import java.io.*;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
+
+import static javafx.fxml.FXMLLoader.load;
 
 
-public class HelloController extends User {
+public class HelloController extends User implements Serializable{
+    private static final long serialVersionUID = 4801633306273802062L;
+
     User user1;
     @FXML
     public Pane SignInPane;
+
 
     @FXML
     public Pane signUpPane;
@@ -89,36 +95,36 @@ public class HelloController extends User {
     @FXML
     public Label checkEmaiLabel;
 
-    public static String username, password, gender;
-    public static List<User> loggedInUser = new ArrayList<>();
-    public static List<User> users = new ArrayList<>();
+    public static String username;
+    public static String password;
+    public static String gender;
+    public static ArrayList<User> loggedInUser = new ArrayList<>();
+    public static ArrayList<User> users = new ArrayList<User>();
 
     File newuserFile = new File("User.txt");
-
-    private static void handle(WindowEvent event) {
-        System.exit(0);
-    }
+    User user = new User();
 
     public void registration() throws IOException {
-        User user = new User();
 
-        if ((!registerNameField.getText().equalsIgnoreCase(""))
-                && (!registerPasswordField.getText().equalsIgnoreCase(""))
-                && (!registerEmailField.getText().equalsIgnoreCase(""))
+
+        if((!registerNameField.getText().equalsIgnoreCase(""))
+                &&( !registerPasswordField.getText().equalsIgnoreCase(""))
+                &&(!registerEmailField.getText().equalsIgnoreCase(""))
                 && (!registerFirstNameField.getText().equalsIgnoreCase(""))
-                && (!registerPhoneNumberField.getText().equalsIgnoreCase(""))
-                && (maleButton.isSelected() || femaleButton.isSelected())) {
-            if (checkUser(registerNameField.getText())) {
-                if (checkEmailLabel(registerEmailField.getText())) {
+                &&(!registerPhoneNumberField.getText().equalsIgnoreCase(""))
+                &&(maleButton.isSelected() || femaleButton.isSelected())) {
+            if(checkUser(registerNameField.getText())) {
+                if(checkEmailLabel(registerEmailField.getText())) {
+
                     user.nameString = registerNameField.getText();
-                    user.passwordString = registerPasswordField.getText();
-                    user.emailString = registerEmailField.getText();
-                    user.fullNameString = registerFirstNameField.getText();
-                    user.phoneNumberString = registerPhoneNumberField.getText();
-                    if (maleButton.isSelected()) {
-                        user.genderString = "MALE";
-                    } else {
-                        user.genderString = "FEMALE";
+                    user.passwordString=registerPasswordField.getText();
+                    user.emailString=registerEmailField.getText();
+                    user.fullNameString=registerFirstNameField.getText();
+                    user.phoneNumberString=registerPhoneNumberField.getText();
+                    if(maleButton.isSelected()) {
+                        user.genderString="Male";
+                    }else {
+                        user.genderString="FEMALE";
                     }
                     users.add(user);
                     // file save
@@ -126,46 +132,51 @@ public class HelloController extends User {
                     goBack.setOpacity(1);
                     succesLabel.setOpacity(1);
                     makeDefault();
-                    if (controlRegisterLabel.getOpacity() == 1) {
+                    if(controlRegisterLabel.getOpacity()==1) {
                         controlRegisterLabel.setOpacity(0);
                     }
-                    if (nameExistsLabel.getOpacity() == 1) {
+                    if(nameExistsLabel.getOpacity()==1) {
                         nameExistsLabel.setOpacity(0);
                     }
-                } else {
+                }
+                else {
                     checkEmaiLabel.setOpacity(1);
                     setOpacity(nameExistsLabel, goBack, controlRegisterLabel, succesLabel);
                 }
 
-            } else {
+            }
+            else {
                 nameExistsLabel.setOpacity(1);
                 setOpacity(succesLabel, goBack, controlRegisterLabel, checkEmaiLabel);
             }
-        } else {
+        }
+        else {
             controlRegisterLabel.setOpacity(1);
             setOpacity(succesLabel, goBack, nameExistsLabel, checkEmaiLabel);
         }
-        if (newuserFile.exists()) {
-            try {
-                FileWriter fileWriter = new FileWriter("User.txt", true);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                PrintWriter printWriter = new PrintWriter(bufferedWriter);
-//                printWriter.println("");
-                printWriter.write(user.nameString + "\\s");
-                printWriter.write(user.passwordString + "\\s");
-                printWriter.write(user.genderString + "\n");
-                printWriter.close();
-                bufferedWriter.close();
-                fileWriter.close();
-            } catch (Exception exception) {
+        if(newuserFile.exists()){
+            try{
+               FileWriter fileWriter = new FileWriter("User.txt",true);
+               BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+               PrintWriter printWriter = new PrintWriter(bufferedWriter);
+               printWriter.write(user.nameString+"\t");
+               printWriter.write(user.passwordString+"\n");
+               printWriter.close();
+               bufferedWriter.close();
+            }catch (Exception exception){
                 exception.printStackTrace();
             }
+
+
+
+        }else{
+            newuserFile.createNewFile();
         }
 
     }
 
-    private void setOpacity(Label aLabel, Label bLabel, Label cLabel, Label dLabel) {
-        if (aLabel.getOpacity() == 1 || bLabel.getOpacity() == 1 || cLabel.getOpacity() == 1 || dLabel.getOpacity() == 1) {
+    private void setOpacity(Label aLabel , Label bLabel, Label cLabel, Label dLabel) {
+        if(aLabel.getOpacity()==1 || bLabel.getOpacity()==1 || cLabel.getOpacity()==1 || dLabel.getOpacity()==1) {
             aLabel.setOpacity(0);
             bLabel.setOpacity(0);
             cLabel.setOpacity(0);
@@ -179,10 +190,9 @@ public class HelloController extends User {
         nameExistLabel.setOpacity(0);
 
     }
-
     private boolean checkUser(String username) {
-        for (User user : users) {
-            if (user.nameString.equalsIgnoreCase(username)) {
+        for(User user: users) {
+            if(user.nameString.equalsIgnoreCase(username)) {
                 return false;
             }
         }
@@ -190,8 +200,8 @@ public class HelloController extends User {
     }
 
     private boolean checkEmailLabel(String emailString) {
-        for (User user : users) {
-            if (user.emailString.equalsIgnoreCase(emailString)) {
+        for (User user: users) {
+            if(user.emailString.equalsIgnoreCase(emailString)) {
                 return false;
             }
         }
@@ -206,108 +216,83 @@ public class HelloController extends User {
         registerFirstNameField.setText("");
         registerPhoneNumberField.setText("");
         maleButton.setSelected(true);
-        setOpacity(controlRegisterLabel, checkEmaiLabel, nameExistsLabel);
+        setOpacity(controlRegisterLabel,checkEmaiLabel,nameExistsLabel);
     }
 
 
-    public void login() {
+    public void login() throws IOException {
 
-        // Read user data from db
-        User temp = new User();
 
+                username = usernameField.getText();
+                password = passwordField.getText();
+                boolean login = false;
         if (newuserFile.exists()) {
-            String[] userInfo;
-            StringBuilder content = getContent();
-//            System.out.println("Dosya içeriği: " + content);
+            Scanner file = new Scanner(new BufferedReader(new FileReader("User.txt")));
 
-            String[] usersFromFile = content.toString().split("\n");//"ali pass MALE","veli pass MALE","...."
-            for (String s : usersFromFile) {
-                userInfo = s.split("\\s");//"ali","pass","MALE"
-                temp.nameString = userInfo[0];
-                temp.passwordString = userInfo[1];
-                temp.genderString = userInfo[2];
-                users.add(temp);
-            }
+                for (User xUser : users) {
 
-            System.out.println(users);
 
-            username = usernameField.getText();
-            password = passwordField.getText();
-//            int loginCounter = 0;
-            for (User xUser : users)
-                if (xUser.nameString.equalsIgnoreCase(username) && xUser.passwordString.equalsIgnoreCase(password)) {
-                    loggedInUser.add(xUser);
-                    System.out.println("loggedInUser: " + xUser.nameString);
-                    gender = xUser.genderString;
-                    break;
+                    while (file.hasNext()) {
+                        xUser.nameString = file.next();
+                        xUser.passwordString = file.next();
+                        System.out.println(xUser.nameString + xUser.passwordString);
+
+                        if (xUser.nameString.equalsIgnoreCase(username) && xUser.passwordString.equalsIgnoreCase(password)) {
+
+                            login = true;
+                            loggedInUser.add(xUser);
+                            System.out.println(xUser.nameString);
+                            gender = xUser.genderString;
+                            break;
+                        }
+
+                    }
                 }
 
-//            users.stream().(i -> i.nameString.equalsIgnoreCase(username)
-//                            && i.passwordString.equalsIgnoreCase(password))
-//                    .forEach(i-> {
-//                        loggedInUser.add(i);
-//                        gender=i.genderString;
-//                    });
+                file.close();
+
+                if (login) {
+                    changeWindow();
+                } else {
+                    loginNotifierLabel.setOpacity(1);
+                }
 
 
-            if (loggedInUser.size() != 2) {
-                changeWindow();
-            } else {
-                loginNotifierLabel.setOpacity(1);
-            }
 
 
         }
-    }
 
-    private static StringBuilder getContent() {
-        StringBuilder content = new StringBuilder();
-
-        try {
-            FileInputStream fileInputStream = new FileInputStream("C:/Users/betul/Desktop/JavaFx/SocketProggramming/User.txt");
-
-            int i = 0;
-
-            while ((i = fileInputStream.read()) != -1) {
-                content.append((char) i);
-            }
-
-            fileInputStream.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("getContent(): "+content+"\n");
-        return content;
     }
 
     public void changeWindow() {
         try {
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            Parent rootParent = FXMLLoader.load(Objects.requireNonNull(this.getClass().getResource("Room.fxml")));
+            Parent rootParent = load(Objects.requireNonNull(this.getClass().getResource("Room.fxml")));
 
 
-            stage.setScene(new Scene(rootParent, 330, 560));
-            stage.setTitle(username + "");
-            stage.setOnCloseRequest(HelloController::handle);
+            stage.setScene(new Scene(rootParent,330,560));
+            stage.setTitle(username+ "");
+            stage.setOnCloseRequest(event ->{
+                System.exit(0);
+            });
             stage.setResizable(false);
             stage.show();
-        } catch (IOException exception) {
+        }catch (IOException exception) {
             exception.printStackTrace();
         }
 
     }
 
     @FXML
-    private void handleButtonAction(ActionEvent event) throws RuntimeException {
+    private void handleButtonAction(ActionEvent event) throws RuntimeException, IOException {
 
-        if (event.getSource().equals(signUpButton)) {
+        if(event.getSource().equals(signUpButton))  {
 
             new FadeIn(signUpPane).play();
 
             signUpPane.toFront();
 
-        } else if (event.getSource().equals(getStartedButton)) {
+        }else if (event.getSource().equals(getStartedButton)) {
 
             new FadeIn(SignInPane).play();
             SignInPane.toFront();
@@ -320,9 +305,9 @@ public class HelloController extends User {
 
 
     @FXML
-    private void handleMouseEvent(MouseEvent eventt) throws RuntimeException {
+    private  void handleMouseEvent(MouseEvent eventt) throws RuntimeException  {
 
-        if (eventt.getSource() == backImageView) {
+        if(eventt.getSource()==backImageView) {
             new FadeIn(SignInPane).play();
             SignInPane.toFront();
         }
